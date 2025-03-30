@@ -5,7 +5,11 @@ const express = require('express');
 const { createAuthMiddleware } = require('../services/createAuthMiddleware');
 const { roles } = require('../services/roles');
 const { checkSensorData } = require('../services/checkSensorData');
-const { sendSms, formatAlertMessage } = require('../services/sendSms');
+const {
+  sendSms,
+  formatAlertMessage,
+  formatWarningMessage,
+} = require('../services/sendSms');
 
 const router = express.Router();
 
@@ -40,7 +44,11 @@ const add = async (req, res) => {
 
     const error = await checkSensorData(sensorData.sensor_data_id);
     if (error) {
-      await sendSms(formatAlertMessage(error), 'alert');
+      const formatted =
+        error.level === 'alert'
+          ? formatAlertMessage(error)
+          : formatWarningMessage(error);
+      await sendSms(formatted, error.level);
     }
 
     res.status(201).send(sensorData);

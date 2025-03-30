@@ -21,6 +21,22 @@ const formatAlertMessage = (data) => {
   };
 };
 
+const formatWarningMessage = (data) => {
+  return {
+    notified_username: data.username,
+    phone: data.phone,
+    message: `*WARNING!*
+    Location: ${data.location_name}
+    Address: ${data.location_address}
+    ---
+    Potential problem detected: ${
+      data.error.falling_temperature ? 'Temperature is decreasing | ' : ''
+    }${data.error.rising_temperature ? 'Temperature is rising | ' : ''}${
+      data.error.falling_humidity ? 'Humidity is falling | ' : ''
+    }${data.error.rising_humidity ? 'Humidity is rising | ' : ''}`.slice(0, -3),
+  };
+};
+
 const sendSms = async (data, notification_type) => {
   try {
     await clientTwilio.messages.create({
@@ -40,4 +56,4 @@ const sendSms = async (data, notification_type) => {
   }
 };
 
-module.exports = { sendSms, formatAlertMessage };
+module.exports = { sendSms, formatAlertMessage, formatWarningMessage };
