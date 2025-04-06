@@ -61,9 +61,15 @@ const update = async (req, res) => {
   const userData = { ...req.body };
 
   try {
-    await User.update(userData, {
-      where: { username },
-    });
+    await User.update(
+      {
+        ...userData,
+        password_hash: hashString(userData.password),
+      },
+      {
+        where: { username },
+      },
+    );
     const user = await User.findByPk(userData.username || username, {
       attributes: { exclude: ['password_hash'] },
     });

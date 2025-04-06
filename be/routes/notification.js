@@ -30,19 +30,7 @@ const getOne = async (req, res) => {
   }
 };
 
-const add = async (req, res) => {
-  const notificationData = { ...req.body };
-
-  try {
-    const notification = await Notification.create(notificationData);
-    res.status(201).send(notification);
-  } catch (err) {
-    res.status(400).send(err.message);
-  }
-};
-
 router.get('/', ...createAuthMiddleware([roles.STAFF, roles.ADMIN]), getAll);
 router.get('/:id', ...createAuthMiddleware([roles.STAFF, roles.ADMIN]), getOne);
-router.post('/', ...createAuthMiddleware([roles.ADMIN]), add);
 
 module.exports = { router };

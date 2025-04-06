@@ -1,0 +1,26 @@
+#root {
+}
+
+@media print {
+  @page {
+    size: 250mm 200mm;
+  }
+
+  .print {
+    margin: 10mm 10mm 10mm 15mm;
+  }
+}
+
+.nav {
+  position: fixed;
+  top: -140px;
+  left: 0;
+  right: 0;
+  background-color: #f5f5f5;
+  z-index: 1000;
+  transition: top 0.3s;
+}
+
+.nav:hover {
+  top: 0;
+}
