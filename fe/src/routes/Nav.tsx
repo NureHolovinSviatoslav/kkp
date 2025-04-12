@@ -2,6 +2,7 @@ import { Button, ButtonGroup } from "@mui/material";
 import { Link } from "react-router-dom";
 import ACLWrapper from "../components/ACLWrapper";
 import { ACL } from "../utils/ACL";
+import { UserRole } from "../types/User";
 
 export const Nav = () => {
   return (
@@ -34,7 +35,12 @@ export const Nav = () => {
                 margin: ".5rem",
               }}
             >
-              Перегляд:
+              <ACLWrapper
+                fallback={<>&nbsp;</>}
+                allowedRoles={[UserRole.Admin, UserRole.Staff]}
+              >
+                Перегляд:
+              </ACLWrapper>
             </p>
             <div style={{ height: "auto" }}>
               <ButtonGroup variant="contained">
@@ -44,11 +50,72 @@ export const Nav = () => {
                   </Link>
                 </ACLWrapper>
 
-                <Link to="/order">
-                  <Button>2</Button>
-                </Link>
+                <ACLWrapper fallback={null} {...ACL.locations}>
+                  <Link to="/locations">
+                    <Button>Локації</Button>
+                  </Link>
+                </ACLWrapper>
+
+                <ACLWrapper fallback={null} {...ACL.locationItems}>
+                  <Link to="/location-items">
+                    <Button>Елементи локацій</Button>
+                  </Link>
+                </ACLWrapper>
+
+                <ACLWrapper fallback={null} {...ACL.vaccines}>
+                  <Link to="/vaccines">
+                    <Button>Вакцини</Button>
+                  </Link>
+                </ACLWrapper>
+
+                <ACLWrapper fallback={null} {...ACL.notifications}>
+                  <Link to="/notifications">
+                    <Button>Сповіщення</Button>
+                  </Link>
+                </ACLWrapper>
+
+                <ACLWrapper fallback={null} {...ACL.sensorData}>
+                  <Link to="/sensor-data">
+                    <Button>Дані датчиків</Button>
+                  </Link>
+                </ACLWrapper>
               </ButtonGroup>
             </div>
+
+            <ACLWrapper
+              fallback={
+                <>
+                  <p
+                    style={{
+                      fontSize: "1.2rem",
+                      fontWeight: "bold",
+                      margin: ".5rem",
+                    }}
+                  >
+                    &nbsp;
+                  </p>
+                  <div>&nbsp;</div>
+                </>
+              }
+              {...ACL.graphs}
+            >
+              <p
+                style={{
+                  fontSize: "1.2rem",
+                  fontWeight: "bold",
+                  margin: ".5rem",
+                }}
+              >
+                Графіки:
+              </p>
+              <div>
+                <ButtonGroup variant="contained">
+                  <Link to="/graphs/sensor-data">
+                    <Button>Дані датчиків</Button>
+                  </Link>
+                </ButtonGroup>
+              </div>
+            </ACLWrapper>
 
             <p
               style={{
@@ -57,32 +124,9 @@ export const Nav = () => {
                 margin: ".5rem",
               }}
             >
-              Звіти:
+              &nbsp;
             </p>
-            <div>
-              <ButtonGroup variant="contained">
-                <Link to="/stats/orders">
-                  <Button>1</Button>
-                </Link>
-              </ButtonGroup>
-            </div>
-
-            <p
-              style={{
-                fontSize: "1.2rem",
-                fontWeight: "bold",
-                margin: ".5rem",
-              }}
-            >
-              Графіки:
-            </p>
-            <div>
-              <ButtonGroup variant="contained">
-                <Link to="/stats/orders">
-                  <Button>1</Button>
-                </Link>
-              </ButtonGroup>
-            </div>
+            <div>&nbsp;</div>
           </div>
 
           <div

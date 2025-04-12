@@ -1,5 +1,5 @@
 export type Location = {
-  location_id: number;
+  location_id: string;
   name: string;
   address: string;
   responsible_username: string | null;

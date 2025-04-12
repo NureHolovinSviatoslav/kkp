@@ -1,5 +1,5 @@
 export type Vaccine = {
-  vaccine_id: number;
+  vaccine_id: string;
   name: string;
   description: string;
   min_temperature: number;

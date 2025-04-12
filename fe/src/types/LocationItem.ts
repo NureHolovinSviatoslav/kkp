@@ -1,6 +1,6 @@
 export type LocationItem = {
-  location_item_id: number;
-  location_id: number;
-  vaccine_id: number;
+  location_item_id: string;
+  location_id: string;
+  vaccine_id: string;
   quantity: number;
 };

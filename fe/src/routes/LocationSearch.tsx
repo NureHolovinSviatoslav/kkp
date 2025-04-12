@@ -1,0 +1,150 @@
+import { Delete, Edit } from "@mui/icons-material";
+import { Button, IconButton } from "@mui/material";
+import { GridColDef } from "@mui/x-data-grid";
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+
+import { useLocationMutation } from "../features/useLocationMutation";
+import { useLocationQuery } from "../features/useLocationQuery";
+import { getStyledDataGrid } from "../utils/getStyledDataGrid";
+
+const StyledDataGrid = getStyledDataGrid();
+
+export const LocationSearch = () => {
+  const query = useLocationQuery();
+  const mutation = useLocationMutation();
+  const [error, setError] = useState<string>("");
+
+  const rows = useMemo(() => {
+    return query.data || [];
+  }, [query.data]);
+
+  const columns = useMemo(() => {
+    return [
+      {
+        field: "name",
+        headerName: "Назва локації",
+        type: "string",
+        width: 200,
+      },
+      {
+        field: "address",
+        headerName: "Адреса",
+        type: "string",
+        width: 250,
+      },
+      {
+        field: "responsible_username",
+        headerName: "Відповідальний",
+        type: "string",
+        valueFormatter: (params) => {
+          return params.value ? params.value : "-";
+        },
+        width: 200,
+      },
+      {
+        field: "max_quantity",
+        headerName: "Максимальна вмістимість",
+        type: "number",
+        width: 180,
+      },
+      {
+        field: "actions",
+        headerName: "Дії",
+        sortable: false,
+        filterable: false,
+        disableColumnMenu: true,
+        width: 85,
+        renderCell: (cellValues) => {
+          return (
+            <>
+              <Link to={`/locations/update/${cellValues.row.location_id}`}>
+                <IconButton aria-label="edit">
+                  <Edit />
+                </IconButton>
+              </Link>
+              <IconButton
+                aria-label="delete"
+                onClick={() => {
+                  setError("");
+                  const id = cellValues.row.location_id;
+                  const confirm = window.confirm(
+                    `Видалити локацію ${cellValues.row.name}?`,
+                  );
+                  if (!confirm) {
+                    return;
+                  }
+                  mutation
+                    .mutateAsync({
+                      type: "delete",
+                      data: { location_id: id },
+                    })
+                    .catch((error) => {
+                      setError(error.message);
+                    });
+                }}
+              >
+                <Delete />
+              </IconButton>
+            </>
+          ) as React.JSX.Element;
+        },
+      },
+    ] as GridColDef[];
+  }, [mutation]);
+
+  useEffect(() => {
+    if (query.isError) {
+      setError((query.error as Error)?.message);
+    }
+  }, [query.isError, query.error]);
+
+  return (
+    <>
+      <div style={{ marginBottom: "1rem" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: ".25rem",
+          }}
+        >
+          <div style={{ color: "red" }}>
+            {error && <>{`Щось пішло не так: ${error}`}</>}
+          </div>
+          <Link to="/locations/create">
+            <Button variant="contained" color="success">
+              Додати локацію
+            </Button>
+          </Link>
+        </div>
+      </div>
+
+      <div
+        style={{
+          height: 550,
+          borderRadius: "5px",
+          backgroundColor: "#f5f5f5",
+        }}
+      >
+        <StyledDataGrid
+          loading={query.isLoading}
+          rows={rows}
+          getRowId={(row) => row.location_id}
+          columns={columns}
+          columnBuffer={3}
+          pageSizeOptions={[]}
+          getRowHeight={() => "auto"}
+          columnHeaderHeight={75}
+          rowSelection={false}
+          localeText={{
+            noRowsLabel: "Даних немає",
+          }}
+        />
+      </div>
+    </>
+  );
+};
+
+export default LocationSearch;
