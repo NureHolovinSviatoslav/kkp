@@ -2,10 +2,17 @@ import { useState } from "react";
 import Loader from "../components/Loader";
 import { useUserQuery } from "../features/useUserQuery";
 import { useDetails } from "../utils/useDetails";
+import { Link, useNavigate } from "react-router-dom";
+import { IconButton } from "@mui/material";
+import { Delete, Edit } from "@mui/icons-material";
+import { useUserMutation } from "../features/useUserMutation";
 
 export const UserDetails = () => {
   const [error, setError] = useState("");
   const { id, values, isLoading } = useDetails(useUserQuery, setError);
+
+  const mutation = useUserMutation();
+  const navigate = useNavigate();
 
   if (isLoading) {
     return <Loader />;
@@ -49,11 +56,51 @@ export const UserDetails = () => {
 
       <div
         style={{
-          color: "red",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
           paddingBottom: 10,
         }}
       >
-        {error && <>Щось пішло не так: {error}</>}
+        {
+          <div style={{ color: "red" }}>
+            {error && <>{`Щось пішло не так: ${error}`}</>}
+          </div>
+        }
+
+        <div>
+          <Link to={`/users/update/${id}`}>
+            <IconButton aria-label="edit">
+              <Edit />
+            </IconButton>
+          </Link>
+          <IconButton
+            aria-label="delete"
+            onClick={() => {
+              setError("");
+
+              const confirm = window.confirm(`Видалити користувача ${id}?`);
+
+              if (!confirm) {
+                return;
+              }
+
+              mutation
+                .mutateAsync({
+                  type: "delete",
+                  data: { username: id ?? "" },
+                })
+                .catch((error) => {
+                  setError(error.message);
+                })
+                .finally(() => {
+                  navigate("/users");
+                });
+            }}
+          >
+            <Delete />
+          </IconButton>
+        </div>
       </div>
 
       <div
