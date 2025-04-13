@@ -52,21 +52,6 @@ export const UserDetails = () => {
         >
           Деталі користувача # {id}
         </h4>
-      </div>
-
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          paddingBottom: 10,
-        }}
-      >
-        {
-          <div style={{ color: "red" }}>
-            {error && <>{`Щось пішло не так: ${error}`}</>}
-          </div>
-        }
 
         <div>
           <Link to={`/users/update/${id}`}>
@@ -90,17 +75,26 @@ export const UserDetails = () => {
                   type: "delete",
                   data: { username: id ?? "" },
                 })
+                .then(() => {
+                  navigate("/users");
+                })
                 .catch((error) => {
                   setError(error.message);
-                })
-                .finally(() => {
-                  navigate("/users");
                 });
             }}
           >
             <Delete />
           </IconButton>
         </div>
+      </div>
+
+      <div
+        style={{
+          color: "red",
+          paddingBottom: 10,
+        }}
+      >
+        {error && <>Щось пішло не так: {error}</>}
       </div>
 
       <div

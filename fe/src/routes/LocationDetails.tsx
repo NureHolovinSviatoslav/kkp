@@ -1,14 +1,18 @@
+import { Delete, Edit, Summarize } from "@mui/icons-material";
+import { IconButton } from "@mui/material";
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import Loader from "../components/Loader";
+import { useLocationMutation } from "../features/useLocationMutation";
 import { useLocationQuery } from "../features/useLocationQuery";
 import { useDetails } from "../utils/useDetails";
-import { Link } from "react-router-dom";
-import { IconButton } from "@mui/material";
-import { Summarize } from "@mui/icons-material";
 
 export const LocationDetails = () => {
   const [error, setError] = useState("");
   const { id, values, isLoading } = useDetails(useLocationQuery, setError);
+
+  const mutation = useLocationMutation();
+  const navigate = useNavigate();
 
   if (isLoading) {
     return <Loader />;
@@ -48,6 +52,44 @@ export const LocationDetails = () => {
         >
           Деталі локації # {id}
         </h4>
+
+        <div>
+          <Link to={`/locations/report/${id}`}>
+            <IconButton aria-label="report">
+              <Summarize />
+            </IconButton>
+          </Link>
+          <Link to={`/locations/update/${id}`}>
+            <IconButton aria-label="edit">
+              <Edit />
+            </IconButton>
+          </Link>
+          <IconButton
+            aria-label="delete"
+            onClick={() => {
+              setError("");
+              const confirm = window.confirm(
+                `Видалити локацію ${values.name}?`,
+              );
+              if (!confirm) {
+                return;
+              }
+              mutation
+                .mutateAsync({
+                  type: "delete",
+                  data: { location_id: id ?? "" },
+                })
+                .then(() => {
+                  navigate("/locations");
+                })
+                .catch((error) => {
+                  setError(error.message);
+                });
+            }}
+          >
+            <Delete />
+          </IconButton>
+        </div>
       </div>
 
       <div style={{ color: "red", paddingBottom: 10 }}>
@@ -120,23 +162,6 @@ export const LocationDetails = () => {
           </p>
           <p style={{ fontSize: "1.2rem", margin: ".5rem" }}>
             {values.max_quantity}
-          </p>
-
-          <p
-            style={{
-              fontSize: "1.2rem",
-              fontWeight: "bold",
-              margin: ".5rem",
-            }}
-          >
-            Звіт:
-          </p>
-          <p style={{ fontSize: "1.2rem", margin: ".5rem" }}>
-            <Link to={`/locations/report/${values.location_id}`}>
-              <IconButton aria-label="report">
-                <Summarize />
-              </IconButton>
-            </Link>
           </p>
         </div>
       </div>

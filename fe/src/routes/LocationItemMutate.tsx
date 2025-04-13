@@ -62,8 +62,8 @@ const LocationItemMutate = () => {
         type: isEdit ? "update" : "create",
         data,
       })
-      .then(() => {
-        navigate("/location-items");
+      .then((data) => {
+        navigate(`/location-items/${data.location_item_id}`);
       })
       .catch((err) => {
         setError(err.message);

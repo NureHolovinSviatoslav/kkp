@@ -4,7 +4,10 @@ import { useDetails } from "../utils/useDetails";
 import { useLocationItemQuery } from "../features/useLocationItemQuery";
 import { useLocationQuery } from "../features/useLocationQuery";
 import { useVaccineQuery } from "../features/useVaccineQuery";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { IconButton } from "@mui/material";
+import { Delete, Edit } from "@mui/icons-material";
+import { useLocationItemMutation } from "../features/useLocationItemMutation";
 
 export const LocationItemDetails = () => {
   const [error, setError] = useState("");
@@ -12,6 +15,9 @@ export const LocationItemDetails = () => {
 
   const locationQuery = useLocationQuery();
   const vaccineQuery = useVaccineQuery();
+
+  const mutation = useLocationItemMutation();
+  const navigate = useNavigate();
 
   if (isLoading || locationQuery.isLoading || vaccineQuery.isLoading) {
     return <Loader />;
@@ -58,6 +64,37 @@ export const LocationItemDetails = () => {
         >
           Деталі елемента локації # {id}
         </h4>
+
+        <div>
+          <Link to={`/location-items/update/${id}`}>
+            <IconButton aria-label="edit">
+              <Edit />
+            </IconButton>
+          </Link>
+          <IconButton
+            aria-label="delete"
+            onClick={() => {
+              setError("");
+              const confirm = window.confirm(`Видалити елемент локації ${id}?`);
+              if (!confirm) {
+                return;
+              }
+              mutation
+                .mutateAsync({
+                  type: "delete",
+                  data: { location_item_id: id ?? "" },
+                })
+                .then(() => {
+                  navigate("/location-items");
+                })
+                .catch((error) => {
+                  setError(error.message);
+                });
+            }}
+          >
+            <Delete />
+          </IconButton>
+        </div>
       </div>
 
       <div style={{ color: "red", paddingBottom: 10 }}>

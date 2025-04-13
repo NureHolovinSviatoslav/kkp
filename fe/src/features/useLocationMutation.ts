@@ -14,13 +14,13 @@ export const useLocationMutation = () => {
     }:
       | { type: "create" | "update"; data: Location }
       | { type: "delete"; data: { location_id: string } }) => {
-      await fetchAbstract(
+      return (await fetchAbstract(
         { queryClient },
         {},
         `locations${type !== "create" ? `/${data.location_id}` : ""}`,
         typeToMethod[type],
         data,
-      );
+      )) as Location;
     },
     {
       onSuccess: () => {

@@ -2,10 +2,17 @@ import { useState } from "react";
 import Loader from "../components/Loader";
 import { useVaccineQuery } from "../features/useVaccineQuery";
 import { useDetails } from "../utils/useDetails";
+import { Link, useNavigate } from "react-router-dom";
+import { IconButton } from "@mui/material";
+import { Delete, Edit } from "@mui/icons-material";
+import { useVaccineMutation } from "../features/useVaccineMutation";
 
 export const VaccineDetails = () => {
   const [error, setError] = useState("");
   const { id, values, isLoading } = useDetails(useVaccineQuery, setError);
+
+  const mutation = useVaccineMutation();
+  const navigate = useNavigate();
 
   if (isLoading) {
     return <Loader />;
@@ -49,6 +56,39 @@ export const VaccineDetails = () => {
         >
           Деталі вакцини # {id}
         </h4>
+
+        <div>
+          <Link to={`/vaccines/update/${id}`}>
+            <IconButton aria-label="edit">
+              <Edit />
+            </IconButton>
+          </Link>
+          <IconButton
+            aria-label="delete"
+            onClick={() => {
+              setError("");
+              const confirm = window.confirm(
+                `Видалити вакцину ${values.name}?`,
+              );
+              if (!confirm) {
+                return;
+              }
+              mutation
+                .mutateAsync({
+                  type: "delete",
+                  data: { vaccine_id: id ?? "" },
+                })
+                .then(() => {
+                  navigate("/vaccines");
+                })
+                .catch((error) => {
+                  setError(error.message);
+                });
+            }}
+          >
+            <Delete />
+          </IconButton>
+        </div>
       </div>
 
       <div

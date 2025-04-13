@@ -14,13 +14,13 @@ export const useVaccineMutation = () => {
     }:
       | { type: "create" | "update"; data: Vaccine }
       | { type: "delete"; data: { vaccine_id: string } }) => {
-      await fetchAbstract(
+      return (await fetchAbstract(
         { queryClient },
         {},
         `vaccines${type !== "create" ? `/${data.vaccine_id}` : ""}`,
         typeToMethod[type],
         data,
-      );
+      )) as Vaccine;
     },
     {
       onSuccess: () => {

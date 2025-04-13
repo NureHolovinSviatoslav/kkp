@@ -10,7 +10,6 @@ import { useVaccineQuery } from "../features/useVaccineQuery";
 import { Vaccine } from "../types/Vaccine";
 import { useEdit } from "../utils/useEdit";
 
-// Define validation schema for Vaccine
 const schema = yup.object({
   name: yup.string().required("Заповніть поле"),
   description: yup.string().required("Заповніть поле"),
@@ -66,8 +65,8 @@ const VaccineMutate = () => {
         type: isEdit ? "update" : "create",
         data,
       })
-      .then(() => {
-        navigate("/vaccines");
+      .then((data) => {
+        navigate(`/vaccines/${data.vaccine_id}`);
       })
       .catch((err) => {
         setError(err.message);

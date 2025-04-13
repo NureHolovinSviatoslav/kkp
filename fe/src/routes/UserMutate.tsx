@@ -65,8 +65,8 @@ const UserMutate = () => {
         type: isEdit ? "update" : "create",
         data,
       })
-      .then(() => {
-        navigate("/users");
+      .then((data) => {
+        navigate(`/users/${data.username}`);
       })
       .catch((err) => {
         setError(err.message);
