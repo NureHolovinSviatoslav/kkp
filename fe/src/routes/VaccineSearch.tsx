@@ -26,6 +26,16 @@ export const VaccineSearch = () => {
         headerName: "Назва",
         type: "string",
         width: 200,
+        renderCell: (cellValues) => {
+          return (
+            <Link
+              to={`/vaccines/${cellValues.row.vaccine_id}`}
+              className="link"
+            >
+              {cellValues.value}
+            </Link>
+          );
+        },
       },
       {
         field: "description",

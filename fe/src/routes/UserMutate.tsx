@@ -170,7 +170,6 @@ const UserMutate = () => {
                     value={field.value}
                     type="search"
                     size="small"
-                    required
                     error={!!fieldState.error}
                     helperText={fieldState.error?.message}
                   />
@@ -193,7 +192,6 @@ const UserMutate = () => {
                     value={field.value}
                     type="search"
                     size="small"
-                    required
                     error={!!fieldState.error}
                     helperText={fieldState.error?.message}
                   />
@@ -217,7 +215,6 @@ const UserMutate = () => {
                     value={field.value}
                     type="search"
                     size="small"
-                    required
                     error={!!fieldState.error}
                     helperText={fieldState.error?.message}
                   />
@@ -246,12 +243,16 @@ const UserMutate = () => {
                       return option ? `${option}` : "";
                     }}
                     renderInput={(params) => (
-                      <TextField {...params} label="Роль*" />
+                      <TextField
+                        {...params}
+                        label="Роль*"
+                        error={!!fieldState.error}
+                      />
                     )}
                     size="small"
                   />
 
-                  <FormHelperText component="span">
+                  <FormHelperText component="span" error={!!fieldState.error}>
                     {fieldState.error?.message && (
                       <div>{fieldState.error?.message}</div>
                     )}

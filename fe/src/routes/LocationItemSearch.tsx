@@ -38,16 +38,32 @@ export const LocationItemSearch = () => {
         headerName: "ID",
         type: "number",
         width: 100,
+        renderCell: (cellValues) => {
+          return (
+            <Link
+              to={`/location-items/${cellValues.row.location_item_id}`}
+              className="link"
+            >
+              {cellValues.value}
+            </Link>
+          );
+        },
       },
       {
         field: "location_id",
         headerName: "Локація",
         type: "number",
-        width: 150,
-        valueFormatter: (params) => {
-          return (
-            locations.find((location) => location.location_id === params.value)
-              ?.name || "-"
+        width: 300,
+        renderCell: (params) => {
+          const location = locations.find(
+            (location) => location.location_id === params.value,
+          );
+          return location ? (
+            <Link className="link" to={`/locations/${location.location_id}`}>
+              {location.name}
+            </Link>
+          ) : (
+            "-"
           );
         },
       },
@@ -56,10 +72,17 @@ export const LocationItemSearch = () => {
         headerName: "Вакцина",
         type: "number",
         width: 150,
-        valueFormatter: (params) => {
-          return (
-            vaccines.find((vaccine) => vaccine.vaccine_id === params.value)
-              ?.name || "-"
+        renderCell: (params) => {
+          const vaccine = vaccines.find(
+            (vaccine) => vaccine.vaccine_id === params.value,
+          );
+
+          return vaccine ? (
+            <Link className="link" to={`/vaccines/${vaccine.vaccine_id}`}>
+              {vaccine.name}
+            </Link>
+          ) : (
+            "-"
           );
         },
       },

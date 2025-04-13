@@ -4,7 +4,7 @@ import { fetchAbstract } from "../utils/fetchAbstract";
 
 export const useSensorDataQuery = (id?: string) => {
   return useQuery({
-    queryKey: ["sensor_data"],
+    queryKey: ["sensor_data", id],
     queryFn: async () => {
       const data = (await fetchAbstract(
         `sensorData${id ? `/${id}` : ""}`,

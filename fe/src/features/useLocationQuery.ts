@@ -4,7 +4,7 @@ import { fetchAbstract } from "../utils/fetchAbstract";
 
 export const useLocationQuery = (id?: string) => {
   return useQuery({
-    queryKey: ["location"],
+    queryKey: ["location", id],
     queryFn: async () => {
       const data = (await fetchAbstract(
         `locations${id ? `/${id}` : ""}`,

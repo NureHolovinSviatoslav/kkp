@@ -4,7 +4,7 @@ import { fetchAbstract } from "../utils/fetchAbstract";
 
 export const useNotificationQuery = (id?: string) => {
   return useQuery({
-    queryKey: ["notification"],
+    queryKey: ["notification", id],
     queryFn: async () => {
       const data = (await fetchAbstract(
         `notifications${id ? `/${id}` : ""}`,

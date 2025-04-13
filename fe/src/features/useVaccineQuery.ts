@@ -4,7 +4,7 @@ import { fetchAbstract } from "../utils/fetchAbstract";
 
 export const useVaccineQuery = (id?: string) => {
   return useQuery({
-    queryKey: ["vaccine"],
+    queryKey: ["vaccine", id],
     queryFn: async () => {
       const data = (await fetchAbstract(
         `vaccines${id ? `/${id}` : ""}`,

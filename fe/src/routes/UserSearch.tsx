@@ -26,6 +26,13 @@ export const UserSearch = () => {
         headerName: "Логін",
         type: "string",
         width: 200,
+        renderCell: (cellValues) => {
+          return (
+            <Link to={`/users/${cellValues.row.username}`} className="link">
+              {cellValues.value}
+            </Link>
+          );
+        },
       },
       {
         field: "role",
@@ -37,8 +44,14 @@ export const UserSearch = () => {
         field: "phone",
         headerName: "Телефон",
         type: "string",
-        valueFormatter: (params) => {
-          return params.value ? params.value : "-";
+        renderCell: (cellValues) => {
+          return cellValues.value ? (
+            <a className="link" href={`tel:${cellValues.value}`}>
+              {cellValues.value}
+            </a>
+          ) : (
+            "-"
+          );
         },
         width: 300,
       },

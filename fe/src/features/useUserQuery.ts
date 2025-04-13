@@ -5,7 +5,7 @@ import { toEnum } from "../utils/toEnum";
 
 export const useUserQuery = (username?: string) => {
   return useQuery({
-    queryKey: ["users"],
+    queryKey: ["users", username],
     queryFn: async () => {
       const _user = (await fetchAbstract(
         `users${username ? `/${username}` : ""}`,

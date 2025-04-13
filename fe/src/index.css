@@ -24,3 +24,19 @@
 .nav:hover {
   top: 0;
 }
+
+.link {
+  text-decoration: none;
+  color: #1976d2;
+  cursor: pointer;
+
+  transition: color 0.15s;
+}
+
+.link:visited {
+  color: #1976d2;
+}
+
+.link:hover {
+  color: #0c3b81;
+}

@@ -4,10 +4,10 @@ import { fetchAbstract } from "../utils/fetchAbstract";
 
 export const useReportQuery = (id: string) => {
   return useQuery({
-    queryKey: ["report"],
+    queryKey: ["report", id],
     queryFn: async () => {
       const data = (await fetchAbstract(
-        `locations${id}/report`,
+        `locations/${id}/report`,
         "GET",
       )) as Report;
 

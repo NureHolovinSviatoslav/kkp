@@ -1,4 +1,4 @@
-import { Delete, Edit } from "@mui/icons-material";
+import { Delete, Edit, Summarize } from "@mui/icons-material";
 import { Button, IconButton } from "@mui/material";
 import { GridColDef } from "@mui/x-data-grid";
 import { useEffect, useMemo, useState } from "react";
@@ -26,6 +26,16 @@ export const LocationSearch = () => {
         headerName: "Назва локації",
         type: "string",
         width: 200,
+        renderCell: (cellValues) => {
+          return (
+            <Link
+              to={`/locations/${cellValues.row.location_id}`}
+              className="link"
+            >
+              {cellValues.value}
+            </Link>
+          );
+        },
       },
       {
         field: "address",
@@ -37,8 +47,15 @@ export const LocationSearch = () => {
         field: "responsible_username",
         headerName: "Відповідальний",
         type: "string",
-        valueFormatter: (params) => {
-          return params.value ? params.value : "-";
+        renderCell: (cellValues) => {
+          return (
+            <Link
+              to={`/users/${cellValues.row.responsible_username}`}
+              className="link"
+            >
+              {cellValues.value}
+            </Link>
+          );
         },
         width: 200,
       },
@@ -58,6 +75,11 @@ export const LocationSearch = () => {
         renderCell: (cellValues) => {
           return (
             <>
+              <Link to={`/locations/report/${cellValues.row.location_id}`}>
+                <IconButton aria-label="report">
+                  <Summarize />
+                </IconButton>
+              </Link>
               <Link to={`/locations/update/${cellValues.row.location_id}`}>
                 <IconButton aria-label="edit">
                   <Edit />

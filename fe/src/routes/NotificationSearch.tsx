@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { useNotificationQuery } from "../features/useNotificationQuery";
 import { getStyledDataGrid } from "../utils/getStyledDataGrid";
+import { Link } from "react-router-dom";
 
 const StyledDataGrid = getStyledDataGrid();
 
@@ -21,14 +22,35 @@ export const NotificationSearch = () => {
         headerName: "ID",
         type: "number",
         width: 100,
+        renderCell: (cellValues) => {
+          return (
+            <Link
+              to={`/notifications/${cellValues.row.notification_id}`}
+              className="link"
+            >
+              {cellValues.value}
+            </Link>
+          );
+        },
       },
       {
         field: "notified_username",
         headerName: "Оператор",
         type: "string",
         width: 200,
-        valueFormatter: (params) => {
-          return params.value ? params.value : "-";
+        renderCell: (cellValues) => {
+          if (!cellValues.value) {
+            return "-";
+          }
+
+          return (
+            <Link
+              to={`/users/${cellValues.row.notified_username}`}
+              className="link"
+            >
+              {cellValues.value}
+            </Link>
+          );
         },
       },
       {
@@ -36,8 +58,16 @@ export const NotificationSearch = () => {
         headerName: "Телефон",
         type: "string",
         width: 150,
-        valueFormatter: (params) => {
-          return params.value ? params.value : "-";
+        renderCell: (cellValues) => {
+          if (!cellValues.value) {
+            return "-";
+          }
+
+          return (
+            <a className="link" href={`tel:${cellValues.value}`}>
+              {cellValues.value}
+            </a>
+          );
         },
       },
       {

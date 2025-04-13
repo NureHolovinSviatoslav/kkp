@@ -9,15 +9,25 @@ import {
 import App from "./App";
 import ACLWrapper from "./components/ACLWrapper";
 import Home from "./components/Home";
+import { LocationDetails } from "./routes/LocationDetails";
+import { LocationItemDetails } from "./routes/LocationItemDetails";
+import LocationItemMutate from "./routes/LocationItemMutate";
 import { LocationItemSearch } from "./routes/LocationItemSearch";
+import LocationMutate from "./routes/LocationMutate";
 import { LocationSearch } from "./routes/LocationSearch";
+import { NotificationDetails } from "./routes/NotificationDetails";
+import { NotificationSearch } from "./routes/NotificationSearch";
 import { Profile } from "./routes/Profile";
+import { ReportDetails } from "./routes/ReportDetails";
+import { SensorDataDetails } from "./routes/SensorDataDetails";
+import { SensorDataSearch } from "./routes/SensorDataSearch";
+import { UserDetails } from "./routes/UserDetails";
 import UserMutate from "./routes/UserMutate";
 import { UserSearch } from "./routes/UserSearch";
-import { ACL } from "./utils/ACL";
+import VaccineMutate from "./routes/VaccineMutate";
 import { VaccineSearch } from "./routes/VaccineSearch";
-import { NotificationSearch } from "./routes/NotificationSearch";
-import { SensorDataSearch } from "./routes/SensorDataSearch";
+import { ACL } from "./utils/ACL";
+import { VaccineDetails } from "./routes/VaccineDetails";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -50,6 +60,7 @@ const Router = () => {
               <Route index element={<UserSearch />} />
               <Route path="create" element={<UserMutate />} />
               <Route path="update/:id" element={<UserMutate />} />
+              <Route path=":id" element={<UserDetails />} />
             </Route>
 
             <Route
@@ -61,9 +72,19 @@ const Router = () => {
               }
             >
               <Route index element={<LocationSearch />} />
-              <Route path="create" element={<UserMutate />} />
-              <Route path="update/:id" element={<UserMutate />} />
+              <Route path="create" element={<LocationMutate />} />
+              <Route path="update/:id" element={<LocationMutate />} />
+              <Route path=":id" element={<LocationDetails />} />
             </Route>
+
+            <Route
+              path="locations/report/:id"
+              element={
+                <ACLWrapper fallback={<Navigate to="/" />} {...ACL.reports}>
+                  <ReportDetails />
+                </ACLWrapper>
+              }
+            />
 
             <Route
               path="location-items"
@@ -77,8 +98,9 @@ const Router = () => {
               }
             >
               <Route index element={<LocationItemSearch />} />
-              <Route path="create" element={<UserMutate />} />
-              <Route path="update/:id" element={<UserMutate />} />
+              <Route path="create" element={<LocationItemMutate />} />
+              <Route path="update/:id" element={<LocationItemMutate />} />
+              <Route path=":id" element={<LocationItemDetails />} />
             </Route>
 
             <Route
@@ -90,8 +112,9 @@ const Router = () => {
               }
             >
               <Route index element={<VaccineSearch />} />
-              <Route path="create" element={<UserMutate />} />
-              <Route path="update/:id" element={<UserMutate />} />
+              <Route path="create" element={<VaccineMutate />} />
+              <Route path="update/:id" element={<VaccineMutate />} />
+              <Route path=":id" element={<VaccineDetails />} />
             </Route>
 
             <Route
@@ -106,6 +129,7 @@ const Router = () => {
               }
             >
               <Route index element={<NotificationSearch />} />
+              <Route path=":id" element={<NotificationDetails />} />
             </Route>
 
             <Route
@@ -117,6 +141,7 @@ const Router = () => {
               }
             >
               <Route index element={<SensorDataSearch />} />
+              <Route path=":id" element={<SensorDataDetails />} />
             </Route>
           </Route>
         </Routes>

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useLocationQuery } from "../features/useLocationQuery";
 import { useSensorDataQuery } from "../features/useSensorDataQuery";
 import { getStyledDataGrid } from "../utils/getStyledDataGrid";
+import { Link } from "react-router-dom";
 
 const StyledDataGrid = getStyledDataGrid();
 
@@ -27,22 +28,38 @@ export const SensorDataSearch = () => {
         headerName: "ID",
         type: "number",
         width: 100,
+        renderCell: (cellValues) => {
+          return (
+            <Link
+              to={`/sensor-data/${cellValues.row.sensor_data_id}`}
+              className="link"
+            >
+              {cellValues.value}
+            </Link>
+          );
+        },
       },
       {
         field: "location_id",
         headerName: "Локація",
         type: "number",
-        width: 200,
-        valueFormatter: (params) => {
-          return (
-            locations.find((location) => location.location_id === params.value)
-              ?.name || "-"
+        width: 300,
+        renderCell: (params) => {
+          const location = locations.find(
+            (location) => location.location_id === params.value,
+          );
+          return location ? (
+            <Link className="link" to={`/locations/${location.location_id}`}>
+              {location.name}
+            </Link>
+          ) : (
+            "-"
           );
         },
       },
       {
         field: "updated_at",
-        headerName: "Оновлено",
+        headerName: "Час надсилання",
         type: "dateTime",
         width: 200,
         valueFormatter: (params) => {
