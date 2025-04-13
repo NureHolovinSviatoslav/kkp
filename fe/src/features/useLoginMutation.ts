@@ -9,8 +9,9 @@ export const useLoginMutation = () => {
 
   return useMutation(
     async (data: Login) => {
-      const jwt = (await fetchAbstract("users/login", "POST", data))
-        .accessToken;
+      const jwt = (
+        await fetchAbstract({ queryClient }, {}, "users/login", "POST", data)
+      ).accessToken;
       localStorage.setItem("jwt", jwt);
       return null;
     },

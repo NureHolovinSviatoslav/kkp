@@ -16,6 +16,8 @@ export const useUserMutation = () => {
       | { type: "create" | "update"; data: User }
       | { type: "delete"; data: { username: string } }) => {
       await fetchAbstract(
+        { queryClient },
+        {},
         `users${type !== "create" ? `/${data.username}` : ""}`,
         typeToMethod[type],
         data,

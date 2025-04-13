@@ -81,7 +81,7 @@ export const ReportDetails = () => {
             marginBlock: 30,
           }}
         >
-          Деталі звіту локації #{id}
+          Звіт локації #{id}
         </h4>
       </div>
 
