@@ -106,12 +106,15 @@ export const Nav = () => {
                   margin: ".5rem",
                 }}
               >
-                Графіки:
+                Графіки даних датчиків:
               </p>
               <div>
                 <ButtonGroup variant="contained">
-                  <Link to="/graphs/sensor-data">
-                    <Button>Дані датчиків</Button>
+                  <Link to="/graphs/sensor-data/location">
+                    <Button>Для локацій</Button>
+                  </Link>
+                  <Link to="/graphs/sensor-data/vaccine">
+                    <Button>Для вакцин</Button>
                   </Link>
                 </ButtonGroup>
               </div>

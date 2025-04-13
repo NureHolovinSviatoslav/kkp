@@ -28,6 +28,8 @@ import VaccineMutate from "./routes/VaccineMutate";
 import { VaccineSearch } from "./routes/VaccineSearch";
 import { ACL } from "./utils/ACL";
 import { VaccineDetails } from "./routes/VaccineDetails";
+import { LocationSensorDataGraph } from "./routes/LocationSensorDataGraph";
+import { VaccineSensorDataGraph } from "./routes/VaccineSensorDataGraph";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -142,6 +144,20 @@ const Router = () => {
             >
               <Route index element={<SensorDataSearch />} />
               <Route path=":id" element={<SensorDataDetails />} />
+            </Route>
+
+            <Route
+              path="graphs"
+              element={
+                <ACLWrapper fallback={<Navigate to="/" />} {...ACL.graphs}>
+                  <Outlet />
+                </ACLWrapper>
+              }
+            >
+              <Route path="sensor-data" element={<Outlet />}>
+                <Route path="location" element={<LocationSensorDataGraph />} />
+                <Route path="vaccine" element={<VaccineSensorDataGraph />} />
+              </Route>
             </Route>
           </Route>
         </Routes>

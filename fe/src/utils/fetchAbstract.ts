@@ -33,6 +33,13 @@ export const fetchAbstract = async <T>(
       queryClient.resetQueries(CURRENT_USER_QUERY_KEY);
     }
 
+    const text = await response.text();
+
+    if (text === "Token verification failed") {
+      localStorage.removeItem("jwt");
+      queryClient.resetQueries(CURRENT_USER_QUERY_KEY);
+    }
+
     throw new Error(await response.text());
   }
 

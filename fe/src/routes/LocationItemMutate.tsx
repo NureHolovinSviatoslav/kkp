@@ -177,7 +177,7 @@ const LocationItemMutate = () => {
                   )}
                   size="small"
                 />
-                <FormHelperText error>
+                <FormHelperText>
                   {fieldState.error?.message ||
                     ((locationOptionsQuery.error as Error)?.message ?? "")}
                 </FormHelperText>
