@@ -1,8 +1,8 @@
 import { Delete, Edit } from "@mui/icons-material";
-import { Button, IconButton } from "@mui/material";
+import { Button, FormControl, IconButton, TextField } from "@mui/material";
 import { GridColDef } from "@mui/x-data-grid";
-import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 
 import { useVaccineMutation } from "../features/useVaccineMutation";
 import { useVaccineQuery } from "../features/useVaccineQuery";
@@ -14,10 +14,34 @@ export const VaccineSearch = () => {
   const query = useVaccineQuery();
   const mutation = useVaccineMutation();
   const [error, setError] = useState<string>("");
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const rows = useMemo(() => {
-    return query.data || [];
-  }, [query.data]);
+  const param = useCallback(
+    (key: string) => searchParams.get(key) ?? "",
+    [searchParams],
+  );
+
+  const rows = useMemo(() => query.data ?? [], [query.data]);
+
+  const filteredRows = useMemo(() => {
+    const name = param("name").toLowerCase();
+    const description = param("description").toLowerCase();
+    const minT = param("min_temperature");
+    const maxT = param("max_temperature");
+    const minH = param("min_humidity");
+    const maxH = param("max_humidity");
+    return rows.filter((row) => {
+      const nameOk = !name || row.name.toLowerCase().includes(name);
+      const descOk =
+        !description ||
+        (row.description ?? "").toLowerCase().includes(description);
+      const minTOk = !minT || row.min_temperature.toString() === minT;
+      const maxTOk = !maxT || row.max_temperature.toString() === maxT;
+      const minHOk = !minH || row.min_humidity.toString() === minH;
+      const maxHOk = !maxH || row.max_humidity.toString() === maxH;
+      return nameOk && descOk && minTOk && maxTOk && minHOk && maxHOk;
+    });
+  }, [rows, param]);
 
   const columns = useMemo(() => {
     return [
@@ -118,6 +142,16 @@ export const VaccineSearch = () => {
     }
   }, [query.isError, query.error]);
 
+  const updateParam = useCallback(
+    (key: string, value: string) => {
+      const next = new URLSearchParams(searchParams);
+      if (value) next.set(key, value);
+      else next.delete(key);
+      setSearchParams(next);
+    },
+    [searchParams, setSearchParams],
+  );
+
   return (
     <>
       <div style={{ marginBottom: "1rem" }}>
@@ -142,6 +176,82 @@ export const VaccineSearch = () => {
 
       <div
         style={{
+          display: "flex",
+          gap: 12,
+          flexWrap: "wrap",
+          alignItems: "center",
+          marginBottom: "1rem",
+        }}
+      >
+        <FormControl size="small" sx={{ minWidth: 180 }}>
+          <TextField
+            label="Назва"
+            size="small"
+            value={param("name")}
+            onChange={(e) => updateParam("name", e.target.value)}
+          />
+        </FormControl>
+
+        <FormControl size="small" sx={{ minWidth: 180 }}>
+          <TextField
+            label="Опис"
+            size="small"
+            value={param("description")}
+            onChange={(e) => updateParam("description", e.target.value)}
+          />
+        </FormControl>
+
+        <FormControl size="small" sx={{ minWidth: 150 }}>
+          <TextField
+            label="Мін. t°"
+            size="small"
+            type="number"
+            value={param("min_temperature")}
+            onChange={(e) => updateParam("min_temperature", e.target.value)}
+          />
+        </FormControl>
+
+        <FormControl size="small" sx={{ minWidth: 150 }}>
+          <TextField
+            label="Макс. t°"
+            size="small"
+            type="number"
+            value={param("max_temperature")}
+            onChange={(e) => updateParam("max_temperature", e.target.value)}
+          />
+        </FormControl>
+
+        <FormControl size="small" sx={{ minWidth: 150 }}>
+          <TextField
+            label="Мін. вологість"
+            size="small"
+            type="number"
+            value={param("min_humidity")}
+            onChange={(e) => updateParam("min_humidity", e.target.value)}
+          />
+        </FormControl>
+
+        <FormControl size="small" sx={{ minWidth: 150 }}>
+          <TextField
+            label="Макс. вологість"
+            size="small"
+            type="number"
+            value={param("max_humidity")}
+            onChange={(e) => updateParam("max_humidity", e.target.value)}
+          />
+        </FormControl>
+
+        <Button
+          variant="outlined"
+          color="secondary"
+          onClick={() => setSearchParams({})}
+        >
+          Очистити фільтри
+        </Button>
+      </div>
+
+      <div
+        style={{
           height: 550,
           borderRadius: "5px",
           backgroundColor: "#f5f5f5",
@@ -149,7 +259,7 @@ export const VaccineSearch = () => {
       >
         <StyledDataGrid
           loading={query.isLoading}
-          rows={rows}
+          rows={filteredRows}
           getRowId={(row) => row.vaccine_id}
           columns={columns}
           columnBuffer={3}

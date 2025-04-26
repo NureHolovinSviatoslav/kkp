@@ -1,8 +1,14 @@
 import { Delete, Edit } from "@mui/icons-material";
-import { Button, IconButton } from "@mui/material";
+import {
+  Button,
+  IconButton,
+  FormControl,
+  TextField,
+  Autocomplete,
+} from "@mui/material";
 import { GridColDef } from "@mui/x-data-grid";
-import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 
 import { useLocationItemMutation } from "../features/useLocationItemMutation";
 import { useLocationItemQuery } from "../features/useLocationItemQuery";
@@ -14,22 +20,39 @@ const StyledDataGrid = getStyledDataGrid();
 
 export const LocationItemSearch = () => {
   const locationQuery = useLocationQuery();
-  const locations = useMemo(() => {
-    return locationQuery.data || [];
-  }, [locationQuery.data]);
+  const locations = useMemo(
+    () => locationQuery.data ?? [],
+    [locationQuery.data],
+  );
 
   const vaccineQuery = useVaccineQuery();
-  const vaccines = useMemo(() => {
-    return vaccineQuery.data || [];
-  }, [vaccineQuery.data]);
+  const vaccines = useMemo(() => vaccineQuery.data ?? [], [vaccineQuery.data]);
 
   const query = useLocationItemQuery();
   const mutation = useLocationItemMutation();
   const [error, setError] = useState<string>("");
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const rows = useMemo(() => {
-    return query.data || [];
-  }, [query.data]);
+  const param = useCallback(
+    (key: string) => searchParams.get(key) ?? "",
+    [searchParams],
+  );
+
+  const rows = useMemo(() => query.data ?? [], [query.data]);
+
+  const filteredRows = useMemo(() => {
+    const id = param("location_item_id");
+    const locationId = param("location_id");
+    const vaccineId = param("vaccine_id");
+    const quantity = param("quantity");
+    return rows.filter((row) => {
+      const idOk = !id || row.location_item_id.toString() === id;
+      const locOk = !locationId || row.location_id.toString() === locationId;
+      const vacOk = !vaccineId || row.vaccine_id.toString() === vaccineId;
+      const qtyOk = !quantity || row.quantity.toString() === quantity;
+      return idOk && locOk && vacOk && qtyOk;
+    });
+  }, [rows, param]);
 
   const columns = useMemo(() => {
     return [
@@ -38,16 +61,14 @@ export const LocationItemSearch = () => {
         headerName: "ID",
         type: "number",
         width: 100,
-        renderCell: (cellValues) => {
-          return (
-            <Link
-              to={`/location-items/${cellValues.row.location_item_id}`}
-              className="link"
-            >
-              {cellValues.value}
-            </Link>
-          );
-        },
+        renderCell: (cellValues) => (
+          <Link
+            to={`/location-items/${cellValues.row.location_item_id}`}
+            className="link"
+          >
+            {cellValues.value}
+          </Link>
+        ),
       },
       {
         field: "location_id",
@@ -56,7 +77,7 @@ export const LocationItemSearch = () => {
         width: 300,
         renderCell: (params) => {
           const location = locations.find(
-            (location) => location.location_id === params.value,
+            (l) => l.location_id === params.value,
           );
           return location ? (
             <Link className="link" to={`/locations/${location.location_id}`}>
@@ -73,10 +94,7 @@ export const LocationItemSearch = () => {
         type: "number",
         width: 150,
         renderCell: (params) => {
-          const vaccine = vaccines.find(
-            (vaccine) => vaccine.vaccine_id === params.value,
-          );
-
+          const vaccine = vaccines.find((v) => v.vaccine_id === params.value);
           return vaccine ? (
             <Link className="link" to={`/vaccines/${vaccine.vaccine_id}`}>
               {vaccine.name}
@@ -99,56 +117,45 @@ export const LocationItemSearch = () => {
         filterable: false,
         disableColumnMenu: true,
         width: 85,
-        renderCell: (cellValues) => {
-          return (
-            <>
-              <Link
-                to={`/location-items/update/${cellValues.row.location_item_id}`}
-              >
-                <IconButton aria-label="edit">
-                  <Edit />
-                </IconButton>
-              </Link>
-              <IconButton
-                aria-label="delete"
-                onClick={() => {
-                  setError("");
-                  const id = cellValues.row.location_item_id;
-                  const confirm = window.confirm(
-                    `Видалити елемент локації ${id}?`,
-                  );
-                  if (!confirm) {
-                    return;
-                  }
-                  mutation
-                    .mutateAsync({
-                      type: "delete",
-                      data: { location_item_id: id },
-                    })
-                    .catch((error) => {
-                      setError(error.message);
-                    });
-                }}
-              >
-                <Delete />
+        renderCell: (cellValues) => (
+          <>
+            <Link
+              to={`/location-items/update/${cellValues.row.location_item_id}`}
+            >
+              <IconButton aria-label="edit">
+                <Edit />
               </IconButton>
-            </>
-          ) as React.JSX.Element;
-        },
+            </Link>
+            <IconButton
+              aria-label="delete"
+              onClick={() => {
+                setError("");
+                const id = cellValues.row.location_item_id;
+                const confirm = window.confirm(
+                  `Видалити елемент локації ${id}?`,
+                );
+                if (!confirm) return;
+                mutation
+                  .mutateAsync({
+                    type: "delete",
+                    data: { location_item_id: id },
+                  })
+                  .catch((e) => setError(e.message));
+              }}
+            >
+              <Delete />
+            </IconButton>
+          </>
+        ),
       },
     ] as GridColDef[];
   }, [mutation, locations, vaccines]);
 
   useEffect(() => {
-    if (query.isError) {
-      setError((query.error as Error)?.message);
-    }
-    if (locationQuery.isError) {
+    if (query.isError) setError((query.error as Error)?.message);
+    if (locationQuery.isError)
       setError((locationQuery.error as Error)?.message);
-    }
-    if (vaccineQuery.isError) {
-      setError((vaccineQuery.error as Error)?.message);
-    }
+    if (vaccineQuery.isError) setError((vaccineQuery.error as Error)?.message);
   }, [
     query.isError,
     query.error,
@@ -157,6 +164,30 @@ export const LocationItemSearch = () => {
     vaccineQuery.isError,
     vaccineQuery.error,
   ]);
+
+  const locationOptions = useMemo(
+    () => locations.map((l) => l.location_id.toString()),
+    [locations],
+  );
+  const vaccineOptions = useMemo(
+    () => vaccines.map((v) => v.vaccine_id.toString()),
+    [vaccines],
+  );
+
+  const getLocationLabel = (id: string) =>
+    locations.find((l) => l.location_id.toString() === id)?.name ?? id;
+  const getVaccineLabel = (id: string) =>
+    vaccines.find((v) => v.vaccine_id.toString() === id)?.name ?? id;
+
+  const updateParam = useCallback(
+    (key: string, value: string) => {
+      const next = new URLSearchParams(searchParams);
+      if (value) next.set(key, value);
+      else next.delete(key);
+      setSearchParams(next);
+    },
+    [searchParams, setSearchParams],
+  );
 
   return (
     <>
@@ -170,7 +201,7 @@ export const LocationItemSearch = () => {
           }}
         >
           <div style={{ color: "red" }}>
-            {error && <>{`Щось пішло не так: ${error}`}</>}
+            {error && `Щось пішло не так: ${error}`}
           </div>
           <Link to="/location-items/create">
             <Button variant="contained" color="success">
@@ -178,6 +209,72 @@ export const LocationItemSearch = () => {
             </Button>
           </Link>
         </div>
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          gap: 12,
+          flexWrap: "wrap",
+          alignItems: "center",
+          marginBottom: "1rem",
+        }}
+      >
+        <FormControl size="small" sx={{ minWidth: 120 }}>
+          <TextField
+            label="ID"
+            size="small"
+            type="number"
+            value={param("location_item_id")}
+            onChange={(e) => updateParam("location_item_id", e.target.value)}
+          />
+        </FormControl>
+
+        <FormControl size="small" sx={{ minWidth: 220 }}>
+          <Autocomplete
+            disablePortal
+            options={locationOptions}
+            value={param("location_id")}
+            onChange={(_, v) => updateParam("location_id", v ?? "")}
+            getOptionLabel={getLocationLabel}
+            renderInput={(p) => (
+              <TextField {...p} label="Локація" size="small" />
+            )}
+            clearOnEscape
+          />
+        </FormControl>
+
+        <FormControl size="small" sx={{ minWidth: 220 }}>
+          <Autocomplete
+            disablePortal
+            options={vaccineOptions}
+            value={param("vaccine_id")}
+            onChange={(_, v) => updateParam("vaccine_id", v ?? "")}
+            getOptionLabel={getVaccineLabel}
+            renderInput={(p) => (
+              <TextField {...p} label="Вакцина" size="small" />
+            )}
+            clearOnEscape
+          />
+        </FormControl>
+
+        <FormControl size="small" sx={{ minWidth: 150 }}>
+          <TextField
+            label="Місткість"
+            size="small"
+            type="number"
+            value={param("quantity")}
+            onChange={(e) => updateParam("quantity", e.target.value)}
+          />
+        </FormControl>
+
+        <Button
+          variant="outlined"
+          color="secondary"
+          onClick={() => setSearchParams({})}
+        >
+          Очистити фільтри
+        </Button>
       </div>
 
       <div
@@ -191,7 +288,7 @@ export const LocationItemSearch = () => {
           loading={
             query.isLoading || locationQuery.isLoading || vaccineQuery.isLoading
           }
-          rows={rows}
+          rows={filteredRows}
           getRowId={(row) => row.location_item_id}
           columns={columns}
           columnBuffer={3}
@@ -199,9 +296,7 @@ export const LocationItemSearch = () => {
           getRowHeight={() => "auto"}
           columnHeaderHeight={75}
           rowSelection={false}
-          localeText={{
-            noRowsLabel: "Даних немає",
-          }}
+          localeText={{ noRowsLabel: "Даних немає" }}
         />
       </div>
     </>

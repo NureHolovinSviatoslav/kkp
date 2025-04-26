@@ -1,8 +1,14 @@
 import { Delete, Edit } from "@mui/icons-material";
-import { Button, IconButton } from "@mui/material";
+import {
+  Autocomplete,
+  Button,
+  FormControl,
+  IconButton,
+  TextField,
+} from "@mui/material";
 import { GridColDef } from "@mui/x-data-grid";
-import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 
 import { useUserMutation } from "../features/useUserMutation";
 import { useUserQuery } from "../features/useUserQuery";
@@ -14,10 +20,33 @@ export const UserSearch = () => {
   const query = useUserQuery();
   const mutation = useUserMutation();
   const [error, setError] = useState<string>("");
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const rows = useMemo(() => {
-    return query.data || [];
-  }, [query.data]);
+  const param = useCallback(
+    (key: string) => {
+      const value = searchParams.get(key);
+      if (value === null) {
+        return "";
+      }
+      return value;
+    },
+    [searchParams],
+  );
+
+  const rows = useMemo(() => query.data ?? [], [query.data]);
+
+  const filteredRows = useMemo(() => {
+    const username = param("username").toLowerCase();
+    const role = param("role");
+    const phone = param("phone").toLowerCase();
+    return rows.filter((row) => {
+      const usernameOk =
+        !username || row.username.toLowerCase().includes(username);
+      const roleOk = !role || row.role === role;
+      const phoneOk = !phone || (row.phone ?? "").toLowerCase().includes(phone);
+      return usernameOk && roleOk && phoneOk;
+    });
+  }, [param, rows]);
 
   const columns = useMemo(() => {
     return [
@@ -108,6 +137,21 @@ export const UserSearch = () => {
     }
   }, [query.isError, query.error]);
 
+  const roleOptions = useMemo(
+    () => Array.from(new Set(rows.map((r) => r.role))).sort(),
+    [rows],
+  );
+
+  const updateParam = useCallback(
+    (key: string, value: string) => {
+      const next = new URLSearchParams(searchParams);
+      if (value) next.set(key, value);
+      else next.delete(key);
+      setSearchParams(next);
+    },
+    [searchParams, setSearchParams],
+  );
+
   return (
     <>
       <div
@@ -139,6 +183,55 @@ export const UserSearch = () => {
 
       <div
         style={{
+          display: "flex",
+          gap: 12,
+          flexWrap: "wrap",
+          alignItems: "center",
+          marginBottom: "1rem",
+        }}
+      >
+        <FormControl size="small" sx={{ minWidth: 200 }}>
+          <TextField
+            label="Логін"
+            size="small"
+            value={param("username")}
+            onChange={(e) => updateParam("username", e.target.value)}
+          />
+        </FormControl>
+
+        <FormControl size="small" sx={{ minWidth: 200 }}>
+          <Autocomplete
+            disablePortal
+            options={roleOptions}
+            value={param("role")}
+            onChange={(_, v) => updateParam("role", v ?? "")}
+            renderInput={(params) => (
+              <TextField {...params} label="Роль" size="small" />
+            )}
+            clearOnEscape
+          />
+        </FormControl>
+
+        <FormControl size="small" sx={{ minWidth: 200 }}>
+          <TextField
+            label="Телефон"
+            size="small"
+            value={param("phone")}
+            onChange={(e) => updateParam("phone", e.target.value)}
+          />
+        </FormControl>
+
+        <Button
+          variant="outlined"
+          color="secondary"
+          onClick={() => setSearchParams({})}
+        >
+          Очистити фільтри
+        </Button>
+      </div>
+
+      <div
+        style={{
           height: 550,
           borderRadius: "5px",
           backgroundColor: "#f5f5f5",
@@ -146,7 +239,7 @@ export const UserSearch = () => {
       >
         <StyledDataGrid
           loading={query.isLoading}
-          rows={rows}
+          rows={filteredRows}
           getRowId={(row) => row.username}
           columns={columns}
           columnBuffer={3}
