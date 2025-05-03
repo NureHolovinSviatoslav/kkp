@@ -2,7 +2,7 @@ import { UserRole } from "../types/User";
 
 export const ACL = {
   users: { allowedRoles: [UserRole.Admin] },
-  locations: { allowedRoles: [UserRole.Admin] },
+  locations: { allowedRoles: [UserRole.Admin, UserRole.Staff] },
   locationItems: { allowedRoles: [UserRole.Admin, UserRole.Staff] },
   vaccines: { allowedRoles: [UserRole.Admin, UserRole.Staff] },
   notifications: { allowedRoles: [UserRole.Admin, UserRole.Staff] },
