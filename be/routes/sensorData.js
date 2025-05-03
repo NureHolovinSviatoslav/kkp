@@ -42,13 +42,15 @@ const add = async (req, res) => {
   try {
     const sensorData = await SensorData.create(data);
 
-    const error = await checkSensorData(sensorData.sensor_data_id);
-    if (error) {
-      const formatted =
-        error.level === 'alert'
-          ? formatAlertMessage(error)
-          : formatWarningMessage(error);
-      await sendSms(formatted, error.level);
+    if (process.env.AVOID_VALIDATION !== 'true') {
+      const error = await checkSensorData(sensorData.sensor_data_id);
+      if (error) {
+        const formatted =
+          error.level === 'alert'
+            ? formatAlertMessage(error)
+            : formatWarningMessage(error);
+        await sendSms(formatted, error.level);
+      }
     }
 
     res.status(201).send(sensorData);
